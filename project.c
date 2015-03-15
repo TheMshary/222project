@@ -7,16 +7,25 @@
 #include <dirent.h>
 
 
+/*
+	commands:
+		+ ls	(check)
+		+ mv 	(check)
+		+ cp	(check)
+		+ rm 	(check)
+		+ rmrec
+*/
+
+
 
 int checkCmd(char *);
-void f_cp();
-
-void getPars(char* c, char** p);
-
-
+void f_cp(char*, char*);
+void f_mv(char*, char*);
+int f_rm(char*);
+void f_rmrec(char *);
 int main()
 {
-/*
+/* blocking
   	DIR *directory;
   	struct dirent *de;
 	sigset_t mask;
@@ -26,59 +35,58 @@ int main()
 	sigaddset(&mask , SIGTSTP);
     sigprocmask(SIG_BLOCK , &mask , NULL);*/
 
+	char cmd[256]="0", par1[256] = "0", par2[256] = "0";
 
-	char cmd[256]="0", cmdptr, *par1, *par2, *checkme;
-	char **filename;
 	printf("Enter a word(quit to terminate shell): ");
-	int i = 0, length, isCmd, j = 0,z=0, savetopar1, savetopar2,size=0,z1=0,j1=0,i1=0;
-	char *word1,*word2,*word3;
-	
-		scanf("%s", cmd);
-		if(strcmp(cmd, "quit") != 0)
-		{
-			if(strcmp(cmd, "cp") == 0)
-				f_cp();
-		}
-			
 
+	int i = 0, length, isCmd;
 	
+	scanf("%s", cmd);
+	printf("*");
+	
+	length = strlen(cmd);
 
-	i = 0;
 	while(strcmp(cmd, "quit") != 0 )
 	{
 		isCmd = checkCmd(cmd);
-		if(isCmd==1)
-		{
-			//excute file
-			system(strcat("./", cmd));
-		}
-		else if(isCmd==-1)
-		{
-			//send to shell
-			system(cmd);
-		} else
+		if(isCmd == -1)
+			system(cmd);	// send to shell
+		else
 		{
 			switch(isCmd)
 			{
+				case 0:
+					// execute file
+					system(cmd);
+					break;
 				case 1:
 					//ls
 
 					break;
 				case 2:
 					//mv
-
+					scanf("%s", par1);
+					scanf("%s", par2);
+					f_mv(par1, par2);
 					break;
 				case 3:
 					//cp
-					//cp();
+					scanf("%s", par1);
+					scanf("%s", par2);
+					f_cp(par1, par2);
 					break;
 				case 4:
 					//rm
-
+					scanf("%s", par1);
+					if(f_rm(par1) == 0)
+						printf("File is deleted successfully!!\n");
+					else
+						printf("Error file is not deleted!!\n");
 					break;
 				case 5:
 					//rmrec
-
+					scanf("%s",par1);
+					f_rmrec(par1);
 					break;
 				default:
 
@@ -93,11 +101,7 @@ int main()
 			i++;
 		}
 		i = 0;
-		while((cmdptr = getchar()) != '\n')
-		{
-			cmd[i] = cmdptr;
-			i++;
-		}
+		scanf("%s", cmd);
 	}
 	return 0;
 }
@@ -121,61 +125,99 @@ int checkCmd(char * cmd)
 
 }
 
-
-
-/*
-void getPars(char* c, char** p)
+void f_cp(char *filename, char *copyto)
 {
-	printf("1*");
-	char* command = c;
-	char** paramaters = p;
-	int paramater = 0, i = 0;
-	while(*command != '\n')
-	{
-		if(*command == ' ')
-		{
-			while(*command != ' ' && *command != '\n')
-			{
-				paramaters[paramater][i] = *command;
-				command++;
-				i++;
-			}
-		}
-				command++;
 
-	}
-}*/
+printf("%s", filename);
+printf("%s", copyto);
 
-void f_cp()
-{
-	printf("\n1\n");
+
 	// open files
 	FILE * fptr1, * fptr2;
-	char filename[256], copyto[256];
-	scanf("%s", filename);
-	scanf("%s", copyto);
-	printf("\nAfter scanf\n");
 	fptr1 = fopen(filename, "r");
 	fptr2 = fopen(copyto, "w");
-
-	
 
 	// read filename data
 	char filechar;
 
 	while(!feof(fptr1))
 	{	
-		printf("\nw\n");
 		fscanf(fptr1, "%c", &filechar);
-		printf("%c\n", filechar);
-		
 		fprintf(fptr2, "%c", filechar);
 	}
-	printf("\nout of while\n");
 
 	fclose(fptr1);
 	fclose(fptr2);
-	printf("\nAfter fclose\n");
-
-	// copy data to copyto
 }
+
+void f_mv(char *par1, char *par2)
+{
+	// call f_cp()
+	f_cp(par1, par2);
+	// call f_rm()
+	f_rm(par1);
+}
+
+int f_rm(char *filename)
+{	
+	// check status
+	int status = remove(filename);
+	return status;
+}
+void f_rmrec(char *dirname)
+{
+
+	//system(strcat("cd ", dirname));
+	system("ls -F > files.txt");
+	// open file
+	char **sword, *rd;
+	int i = 0;
+	FILE *fptr = fopen("files.txt", "r");
+	// strtok
+	while(!feof(fptr))
+	{
+		fscanf(fptr, "%c", rd);
+	}
+	sword[0] = strtok (rd,"\n");
+	while (sword[i] != NULL)
+	{
+		printf("%s\n", sword[i]);
+		sword[i+1] = strtok (NULL, "\n");
+	}
+	/*
+	int r = remove(dirname);
+	if(r !=0)
+		{
+			f_rmrec(dirname);
+		} */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
