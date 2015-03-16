@@ -17,16 +17,22 @@
 */
 
 
-
+// prototypes
 int checkCmd(char *);
 void f_cp(char*, char*);
 void f_mv(char*, char*);
 int f_rm(char*);
 void f_rmrec(char *);
+
+
 int main()
 {
-/* blocking
-  	DIR *directory;
+
+	/* 	This block of code handles 
+		the blocking of signals from
+		CTRL+C and CTRL+Z			*/
+ 
+/*	DIR *directory;
   	struct dirent *de;
 	sigset_t mask;
 	
@@ -89,11 +95,11 @@ int main()
 					f_rmrec(par1);
 					break;
 				default:
-
+					printf("Repeat your command master, and show me mercy for I was not listening...\n")
 					break;
 			}
 		}
-		/* Takes next command */
+		/* nullifies current command */
 		printf("Enter a word(quit to terminate shell): ");
 		while(i <= length)
 		{
@@ -101,11 +107,13 @@ int main()
 			i++;
 		}
 		i = 0;
+		/* gets next command */
 		scanf("%s", cmd);
 	}
 	return 0;
 }
 
+//	returns an indicator to which command was typed
 int checkCmd(char * cmd)
 {
 	if((strcmp(cmd,"ls")==0))
@@ -164,10 +172,10 @@ int f_rm(char *filename)
 	int status = remove(filename);
 	return status;
 }
+
 void f_rmrec(char *dirname)
 {
 
-	//system(strcat("cd ", dirname));
 	system("ls -F > files.txt");
 	// open file
 	char **sword, *rd;
@@ -184,12 +192,6 @@ void f_rmrec(char *dirname)
 		printf("%s\n", sword[i]);
 		sword[i+1] = strtok (NULL, "\n");
 	}
-	/*
-	int r = remove(dirname);
-	if(r !=0)
-		{
-			f_rmrec(dirname);
-		} */
 }
 
 
