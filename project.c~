@@ -5,7 +5,8 @@ int main()
 {
 	// gets the maximum number of processes allowed by this shell
 	int max_proc = getmaxproc();
-	f_rm("pid_max");
+	printf("max_proc: %d\n\n", max_proc);
+
 /* 	This block of code handles 
 	the blocking of signals from
 	CTRL+C and CTRL+Z			*/
@@ -38,29 +39,28 @@ int main()
 			switch(isCmd)
 			{
 				case 0:
-					// not a built-in command
-					// or file to execute
+					// execute file
 					system(cmd);
 					break;
 				case 1:
 					//ls
-					_ls();
+					f_ls(s);
 					break;
 				case 2:
 					//mv
-					scanf("%s", par1);	// from this
-					scanf("%s", par2);	// to this
+					scanf("%s", par1);
+					scanf("%s", par2);
 					f_mv(par1, par2);
 					break;
 				case 3:
 					//cp
-					scanf("%s", par1);	// copy this
-					scanf("%s", par2);	// to this
+					scanf("%s", par1);
+					scanf("%s", par2);
 					f_cp(par1, par2);
 					break;
 				case 4:
 					//rm
-					scanf("%s", par1);	// remove this
+					scanf("%s", par1);
 					if(f_rm(par1) == 0)
 						printf("File deleted successfully\n");
 					else
@@ -68,7 +68,7 @@ int main()
 					break;
 				case 5:
 					//rmrec
-					scanf("%s",par1);	// remove this directory
+					scanf("%s",par1);
 					f_rmrec(par1);
 					break;
 				default:
