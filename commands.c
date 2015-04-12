@@ -25,7 +25,7 @@ int checkCmd(char * cmd)
 
 	return -1;
 }
-//---------------------------------------------------------------
+/*----------------------------------- F_LS -----------------------------------*/
 
 void f_ls ()
 {
@@ -57,7 +57,7 @@ void f_ls ()
 	printf("\n");
 }
 
-//---------------------------------------------------------------
+/*----------------------------------- F_CP -----------------------------------*/
 
 // 'cp' - copy file
 // can take absolute or relative path
@@ -80,7 +80,7 @@ void f_cp(char *filename, char *copyto)
 	fclose(fptr1);
 	fclose(fptr2);
 }
-//---------------------------------------------------------------
+/*----------------------------------- F_MV -----------------------------------*/
 
 // 'mv' - move
 void f_mv(char *par1, char *par2)
@@ -91,7 +91,7 @@ void f_mv(char *par1, char *par2)
 	// call f_rm()
 	f_rm(par1);
 }
-//---------------------------------------------------------------
+/*----------------------------------- F_RM -----------------------------------*/
 
 // 'rm' - remove
 int f_rm(char *filename)
@@ -99,95 +99,130 @@ int f_rm(char *filename)
 	// check status
 	return remove(filename);
 }
-//---------------------------------------------------------------
+/*----------------------------------- F_RMREC -----------------------------------*/
 
 // rmrec
 void f_rmrec(char *dirname)
 {
-	chdir(dirname);
-	DIR *directory;
-	int i = 0 , j;
-	char * name;
-	char cwd[1024];
-	struct dirent *de;
-	struct stat st;
-	
-	if (getcwd(cwd, sizeof(cwd)) != NULL)
-	{
-		if (!(directory = opendir(cwd)))
-			printf("Error: cannot open directory...\n");
-		
-		else
-		{
-			for (j = 0  ; j < 2 ; j++)
-				if (0 != (de = readdir(directory)))
-				{
-					printf(" ");
-				}
-
-			while (0 != ( de = readdir(directory) ) )
-			{
-				stat(de->d_name , &st);
-				
-				if(S_ISDIR(st.st_mode))
-				{
-					chdir(de->d_name);
-					f_rmrec(de->d_name);
-					chdir(cwd);
-				}
-
-				else
-				{
-					remove(de->d_name);
-				}
-				
-				i++;
-			}
-		}
-	}
-	else
-		printf("getcwd() ERROR \n\n");
-	
-	rmdir(cwd);
-	printf("removed :  %s\n",cwd);
-
-}
-//---------------------------------------------------------------
-
-//execve function((not complete))
-void f_exe(char  *name)
-{
-	char *arg[256] = {NULL};
-	char *env[] = {NULL};
-	pid_t p, pid;
-	time_t t1, t2, t3;
-
-	arg[0] = (char*) name;
-
-	p = fork();
-
-	if(p == 0)
-	{
-		execve(name , (char **)arg , env);
-	}
+    int i = 0 , j;
+    char * name;
+    DIR *directory;
+    struct dirent *de;
+    struct stat st;
     
-	else
-	{
-		signal(SIGCHLD,handler);
-		time_t t1;
-		t1 = time(NULL);
-		while(1)
-			if(!ter){
-				if((time(NULL)-t1 == 300)){
-					pid = tcgetpgrp(getpid());
-					printf("process %d transfered to background\n",p);
-					break;
-				}
-			}
-			else
-				break;
+    chdir(dirname);
+    
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        if (!(directory = opendir(cwd)))
+            printf("ERROR\n\n");
+        else
+        {
+            for (j = 0  ; j < 2 ; j++)
+                if (0 != (de = readdir(directory)))
+                {
+                    printf("");
+                }
+            
+            while (0 != (de = readdir(directory)))
+            {
+                stat(de->d_name , &st);
+                
+                if(S_ISDIR(st.st_mode))
+                {
+                    f_rmrec(de->d_name);
+                    chdir(cwd);
+                }else
+                {
+                    remove(de->d_name);
+                }
+                i++;
+            }
+        }
     }
+    else
+        printf("getcwd() ERROR \n\n");
+        
+        rmdir(cwd);
+        printf("removed :  %s\n",cwd);
+        
+        
+        }
+/*----------------------------------- F_EXE -----------------------------------*/
+
+//execve
+void f_exe(char  *name, int pref)
+{
+        char *arg[256] = {NULL};
+        char *env [] = {NULL};
+        pid_t p , pid;
+        time_t t1 , t2 , t3;
+        char c[1024];
+        int bg = 0;
+
+        arg[0] =(char*) name;
+        getl(c , 1024);
+    
+        if(c[1] == '&')
+            bg = 1;
+        if(f_prss() <= max_proc) {
+        	p = fork();
+    
+	        if(p == 0)
+	        {
+	            execve(name , (char **)arg , env);
+	        }
+	    
+	        else
+	        {
+
+	            if(!bg)
+	            {
+	            signal(SIGCHLD,handler);
+	            time_t t1;
+	            t1 = time(NULL);
+	            while(1)
+	                if(!ter){
+	                        if((time(NULL)-t1 == 300)){
+	                        	if(pref) {
+		                            pid = tcgetpgrp(getpid());
+		                            printf("process %d transfered to background\n",p);
+	                            } else {
+	                            	wait(p);
+	                            	//printf("process %d remains foreground according to your preference...\n", p);
+	                            }
+	                            break;
+	                        }
+	                }
+	                else
+	                    break;
+	            }
+	            else
+	                pid = tcgetpgrp(getpid());
+	        }
+	    }
+      	else {
+      		printf("Cannot create anymore processes.\n");
+      	}
+            
+        
 }
+
+
+void getl (char s [1024] , int len)
+{
+    int c , i;
+    
+    for (i = 0 ; (i<len-1) && ((c = getchar()) != EOF) && (c != '\n') ; i++)
+        s[i] = c;
+    if(c == '\n')
+    {
+        s[i] = c;
+        ++i;
+    }
+    s[i] = '\0';
+}
+
 //---------------------------------------------------------------
 
 // returns allowed number of processes for this shell
@@ -249,4 +284,28 @@ int getvalue(char *string)
 void handler (int signo)
 {
     ter = 1;
+}
+
+int f_prss ()
+{
+    FILE *fd;
+    char ch;
+    int lines = 0;
+    
+    system("ps rmrec > p.txt");
+    
+    fd = fopen ("p.txt" , "r");
+    
+    while(!feof(fd))
+    {
+        ch = fgetc(fd);
+        if(ch == '\n')
+        {
+            lines++;
+        }
+    }
+    
+    fclose(fd);
+    
+    return lines-1;
 }
