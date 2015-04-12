@@ -1,7 +1,8 @@
 #include "shell.h"
 
-int rmrec_running = 0;
-void shell()
+int rmrec_running = 0;	// this variable is checked when about to run rmrec
+
+void shell(char *hostname)
 {
 	// gets the maximum number of processes allowed by this shell
 	int max_proc = getmaxproc();
@@ -25,10 +26,7 @@ void shell()
 	char cmd[256]="0", par1[256]="0", par2[256]="0";
 	int i = 0, length, isCmd;
 	char *s[256];
-	//char *p;
-	//char * prompt;
-	//prompt = cuserid(p, sizeof(p));
-	printf("%s: ", "Command");
+	printf("%s: ", hostname);
 	scanf("%s", cmd);
 	
 	length = strlen(cmd);
@@ -38,16 +36,14 @@ void shell()
 		isCmd = checkCmd(cmd);
 	
 		if(isCmd == -1)
+				system(cmd);	// send to original shell
 	
-			system(cmd);	// send to shell
 		else
 		{
 			switch(isCmd)
 			{
 				case 0:
-					// not a built-in command
-					// or file to execute
-					f_exe(cmd+2);
+                    f_exe(cmd);
 					break;
 	
 				case 1:
@@ -86,8 +82,11 @@ void shell()
 					break;
 	
 				default:
-                    printf("%s",cmd);
-                    f_exe(cmd);
+                    // not a built-in command
+					// or file to execute
+					char c[1024];
+					getl(c, 1024);
+					system(c);
 					break;
 			}
 		}
@@ -104,7 +103,7 @@ void shell()
 		i = 0;
 		
 		/* gets next command */
-		
+		printf("%s: ", hostname);
 		scanf("%s", cmd);
 	}
 }
