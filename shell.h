@@ -1,5 +1,4 @@
 #include "commands.h"
 
-void shell();
+void shell(char*, int);
 
-int cur_proc = 1;
