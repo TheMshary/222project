@@ -1,94 +1,10 @@
-#include "commands.h"
+#include "shell.h"
 
 
 int main()
 {
-	// gets the maximum number of processes allowed by this shell
-	int max_proc = getmaxproc();
-	f_rm("pid_max");
-/* 	This block of code handles 
-	the blocking of signals from
-	CTRL+C and CTRL+Z			*/
- 
-/*	DIR *directory;
-  	struct dirent *de;
-	sigset_t mask;
-	
-	sigemptyset(&mask);
-	sigaddset(&mask ,SIGINT);
-	sigaddset(&mask , SIGTSTP);
-    sigprocmask(SIG_BLOCK , &mask , NULL);*/
-
-
-
-	char cmd[256]="0", par1[256]="0", par2[256]="0";
-	printf("Command (quit to terminate shell): ");
-	int i = 0, length, isCmd;
-	scanf("%s", cmd);
-	length = strlen(cmd);
-    char * s[256];
-
-	while(strcmp(cmd, "quit") != 0 )
-	{
-		isCmd = checkCmd(cmd);
-		if(isCmd == -1)
-			system(cmd);	// send to shell
-		else
-		{
-			switch(isCmd)
-			{
-				case 0:
-					// not a built-in command
-					// or file to execute
-					system(cmd);
-					break;
-				case 1:
-					//ls
-					_ls();
-					break;
-				case 2:
-					//mv
-					scanf("%s", par1);	// from this
-					scanf("%s", par2);	// to this
-					f_mv(par1, par2);
-					break;
-				case 3:
-					//cp
-					scanf("%s", par1);	// copy this
-					scanf("%s", par2);	// to this
-					f_cp(par1, par2);
-					break;
-				case 4:
-					//rm
-					scanf("%s", par1);	// remove this
-					if(f_rm(par1) == 0)
-						printf("File deleted successfully\n");
-					else
-						printf("Error: file was not deleted\n");
-					break;
-				case 5:
-					//rmrec
-					scanf("%s",par1);	// remove this directory
-					f_rmrec(par1);
-					break;
-				default:
-                    printf("%s",cmd);
-                    f_exe(cmd);
-					break;
-			}
-		}
-		/* nullifies current command */
-		printf("Command (quit to terminate shell): ");
-		while(i <= length)
-		{
-			cmd[i] = 0;
-			i++;
-		}
-		i = 0;
-		/* gets next command */
-		scanf("%s", cmd);
-	}
+	// this runs the shell
+	// by calling this function
+	shell();
 	return 0;
 }
-
-
